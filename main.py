@@ -19,35 +19,42 @@ class WhatsAppBlaster:
         self.file_path_entry.grid(row=1, column=1, padx=10, pady=5)
         tk.Button(self.root, text="Browse", command=self.browse_file).grid(row=1, column=2, padx=10, pady=5)
         tk.Button(self.root, text="Blast Messages", command=self.blast_messages).grid(row=2, column=1, pady=10)
-
+    
     def browse_file(self):
         file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
         self.file_path_entry.delete(0, tk.END)
         self.file_path_entry.insert(0, file_path)
-
+    
     def blast_messages(self):
         file_path = self.file_path_entry.get()
         message = self.message_entry.get("1.0", tk.END).strip()
+        default_country_code = "+91"  # Default country code for India
+    
         if not file_path:
             messagebox.showerror("Error", "Please select an Excel file.")
             return
+    
         if not message:
             messagebox.showerror("Error", "Please enter a message.")
             return
+    
         try:
             df = pd.read_excel(file_path)
             if 'Phone' not in df.columns:
                 messagebox.showerror("Error", "The Excel file must contain a column named 'Phone'.")
                 return
+    
             phone_numbers = df['Phone'].dropna().astype(str).tolist()
             for number in phone_numbers:
                 number = number.strip()
                 if not number.startswith("+"):
-                    messagebox.showerror("Error", f"Invalid phone number format: {number}. Include country code.")
-                    return
+                    number = default_country_code + number
+    
                 kit.sendwhatmsg_instantly(number, message, wait_time=10)
                 time.sleep(5)
+    
             messagebox.showinfo("Success", "Messages have been sent successfully!")
+    
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred: {e}")
 
