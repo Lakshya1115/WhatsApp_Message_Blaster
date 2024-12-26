@@ -28,7 +28,7 @@ class WhatsAppBlaster:
     def blast_messages(self):
         file_path = self.file_path_entry.get()
         message = self.message_entry.get("1.0", tk.END).strip()
-        default_country_code = "+91"  # Default country code for India
+        default_country_code = "+91"  
 
         if not file_path:
             messagebox.showerror("Error", "Please select an Excel file.")
@@ -50,8 +50,13 @@ class WhatsAppBlaster:
                 if not number.startswith("+"):
                     number = default_country_code + number
 
-                kit.sendwhatmsg_instantly(number, message, wait_time=10)
-                time.sleep(3)
+                print(f"Sending message to {number}...")
+                try:
+                    kit.sendwhatmsg_instantly(number, message, wait_time=15) 
+                    print(f"Message sent to {number}.")
+                except Exception as e:
+                    print(f"Failed to send message to {number}: {e}")
+                time.sleep(10)  
 
             messagebox.showinfo("Success", "Messages have been sent successfully!")
 
