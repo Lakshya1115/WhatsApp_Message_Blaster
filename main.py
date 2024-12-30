@@ -29,6 +29,7 @@ class WhatsAppBlaster:
         file_path = self.file_path_entry.get()
         message = self.message_entry.get("1.0", tk.END).strip()
         default_country_code = "+91"  
+        error_numbers = []
 
         if not file_path:
             messagebox.showerror("Error", "Please select an Excel file.")
@@ -47,6 +48,8 @@ class WhatsAppBlaster:
             phone_numbers = df['Phone'].dropna().astype(str).tolist()
             for number in phone_numbers:
                 number = number.strip()
+                if '.' in number:
+                    number = number.split('.')[0]  # Remove decimal points
                 if not number.startswith("+"):
                     number = default_country_code + number
 
@@ -56,7 +59,14 @@ class WhatsAppBlaster:
                     print(f"Message sent to {number}.")
                 except Exception as e:
                     print(f"Failed to send message to {number}: {e}")
-                time.sleep(10)  
+                    error_numbers.append((number, str(e)))
+                time.sleep(10)  # Add delay between messages
+
+            if error_numbers:
+                with open("error_numbers.txt", "w") as error_file:
+                    for num, err in error_numbers:
+                        error_file.write(f"{num}: {err}\n")
+                messagebox.showwarning("Warning", "Some messages failed to send. Check 'error_numbers.txt' for details.")
 
             messagebox.showinfo("Success", "Messages have been sent successfully!")
 
